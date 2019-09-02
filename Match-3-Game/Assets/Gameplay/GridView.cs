@@ -29,6 +29,9 @@ public class GridView : MonoBehaviour
 
         switch (tileColor)
         {
+            case GridModel.Colors.blank:
+                newTile.GetComponent<SpriteRenderer>().color = Color.white;
+                break;
             case GridModel.Colors.red:
                 newTile.GetComponent<SpriteRenderer>().color = Color.red;
                 break;
