@@ -19,11 +19,12 @@ public class GridView : MonoBehaviour
         
     }*/
 
-    public void DrawGrid(GridModel.Colors tileColor,Vector2 tilePosition)
+    public GameObject DrawGrid(GridModel.Colors tileColor,Vector2 tilePosition, string newName, int i, int j)
     {
         GameObject newTile = Instantiate(template, new Vector3(tilePosition.x,tilePosition.y),Quaternion.identity);
         //newTile.transform.position = new Vector3(tilePosition.x, tilePosition.y, 0);
         newTile.SetActive(true);
+        newTile.name = newName + i + " - " + j;
 
         //newTile.GetComponent<SpriteRenderer>().color = Color.red;
 
@@ -40,6 +41,29 @@ public class GridView : MonoBehaviour
                 break;
             case GridModel.Colors.green:
                 newTile.GetComponent<SpriteRenderer>().color = Color.green;
+                break;
+            default:
+                break;
+        }
+
+        return newTile;
+    }
+
+    public void ChangeColor(GameObject block, GridModel.Colors color)
+    {
+        switch (color)
+        {
+            case GridModel.Colors.blank:
+                block.GetComponent<SpriteRenderer>().color = Color.white;
+                break;
+            case GridModel.Colors.red:
+                block.GetComponent<SpriteRenderer>().color = Color.red;
+                break;
+            case GridModel.Colors.blue:
+                block.GetComponent<SpriteRenderer>().color = Color.blue;
+                break;
+            case GridModel.Colors.green:
+                block.GetComponent<SpriteRenderer>().color = Color.green;
                 break;
             default:
                 break;
