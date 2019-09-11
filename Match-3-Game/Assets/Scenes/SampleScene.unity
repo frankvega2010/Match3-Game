@@ -656,6 +656,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c2cbe29a85206b4399ae66af96fa252, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  rows: 9
+  columns: 9
   swap:
   - {x: 0, y: 0}
   - {x: 0, y: 0}
@@ -664,4 +666,4 @@ MonoBehaviour:
   - {x: 0, y: 0}
   blocks: []
   gridView: {fileID: 1435347859}
-  swapTiles: 0000
+  swapTiles: 

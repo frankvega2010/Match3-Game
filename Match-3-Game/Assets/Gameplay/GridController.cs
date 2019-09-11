@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class GridController : MonoBehaviour
 {
+    public int rows;
+    public int columns;
     public Vector2[] swap;
     public Vector2[] tiles = new Vector2[2];
     public List<GameObject> blocks;
@@ -11,12 +13,12 @@ public class GridController : MonoBehaviour
     private GridModel grid;
     public bool[] swapTiles;
 
-
+    //
     // Start is called before the first frame update
     void Start()
     {
         grid = new GridModel();
-        InitializeGrid(9,9,2);
+        InitializeGrid(rows, columns, 2);
         ShowGridData();
         DrawGrid();
     }
@@ -30,18 +32,18 @@ public class GridController : MonoBehaviour
         //DrawGrid();
     }*/
 
-    public void InitializeGrid(int newHeight, int newWidth, int increasedPosition)
+    public void InitializeGrid(int newRows, int newColumns, int increasedPosition)
     {
         grid.cellPosition = 0;
-        grid.width = newWidth;
-        grid.height = newHeight;
+        grid.columns = newColumns;
+        grid.rows = newRows;
 
-        grid.gridColors = new GridModel.Colors[grid.height, grid.width];
-        grid.gridPositions = new Vector2[grid.height, grid.width];
+        grid.gridColors = new GridModel.Colors[grid.rows, grid.columns];
+        grid.gridPositions = new Vector2[grid.rows, grid.columns];
 
-        for (int i = 0; i < grid.height; i++)
+        for (int i = 0; i < grid.rows; i++)
         {
-            for (int j = 0; j < grid.width; j++)
+            for (int j = 0; j < grid.columns; j++)
             {
                 grid.gridColors[i, j] = RandomColor();
                 grid.gridPositions[i, j] = new Vector2(increasedPosition * j, increasedPosition * i);
@@ -60,20 +62,20 @@ public class GridController : MonoBehaviour
     {
         int findSameColor = 0;
 
-        for (int i = 0; i < grid.height; i++)
+        for (int r = 0; r < grid.rows; r++)
         {
-            for (int j = 0; j < grid.width; j++)
+            for (int c = 0; c < grid.columns; c++)
             {
-                if (i != 0 && i < grid.height - 1)
+                if (r != 0 && r < grid.rows - 1)
                 {
                     findSameColor++;
 
-                    if (grid.gridColors[i, j] == grid.gridColors[i - 1, j])
+                    if (grid.gridColors[r, c] == grid.gridColors[r - 1, c])
                     {
                         findSameColor++;
                     }
 
-                    if (grid.gridColors[i, j] == grid.gridColors[i + 1, j])
+                    if (grid.gridColors[r, c] == grid.gridColors[r + 1, c])
                     {
                         findSameColor++;
                     }
@@ -81,9 +83,9 @@ public class GridController : MonoBehaviour
                     if (findSameColor >= 3)
                     {
                         //grid.gridColors[i, j] = GridModel.Colors.blank;
-                        grid.gridColors[i - 1, j] = RandomColor();
-                        grid.gridColors[i, j] = RandomColor();
-                        grid.gridColors[i + 1, j] = RandomColor();
+                        grid.gridColors[r - 1, c] = RandomColor();
+                        grid.gridColors[r, c] = RandomColor();
+                        grid.gridColors[r + 1, c] = RandomColor();
                     }
 
                     findSameColor = 0;
@@ -96,20 +98,20 @@ public class GridController : MonoBehaviour
     {
         int findSameColor = 0;
 
-        for (int i = 0; i < grid.height; i++)
+        for (int r = 0; r < grid.rows; r++)
         {
-            for (int j = 0; j < grid.width; j++)
+            for (int c = 0; c < grid.columns; c++)
             {
-                if (j != 0 && j < grid.width - 1)
+                if (c != 0 && c < grid.columns - 1)
                 {
                     findSameColor++;
 
-                    if (grid.gridColors[i, j] == grid.gridColors[i, j - 1])
+                    if (grid.gridColors[r, c] == grid.gridColors[r, c - 1])
                     {
                         findSameColor++;
                     }
 
-                    if (grid.gridColors[i, j] == grid.gridColors[i, j + 1])
+                    if (grid.gridColors[r, c] == grid.gridColors[r, c + 1])
                     {
                         findSameColor++;
                     }
@@ -117,9 +119,9 @@ public class GridController : MonoBehaviour
                     if (findSameColor >= 3)
                     {
                         //grid.gridColors[i, j] = GridModel.Colors.blank;
-                        grid.gridColors[i, j - 1] = RandomColor();
-                        grid.gridColors[i, j] = RandomColor();
-                        grid.gridColors[i, j + 1] = RandomColor();
+                        grid.gridColors[r, c - 1] = RandomColor();
+                        grid.gridColors[r, c] = RandomColor();
+                        grid.gridColors[r, c + 1] = RandomColor();
                     }
 
                     findSameColor = 0;
@@ -130,11 +132,11 @@ public class GridController : MonoBehaviour
 
     public void ShowGridData()
     {
-        for (int i = 0; i < grid.height; i++)
+        for (int r = 0; r < grid.rows; r++)
         {
-            for (int j = 0; j < grid.width; j++)
+            for (int c = 0; c < grid.columns; c++)
             {
-                Debug.Log("Position " + i + " " + j + " = " + "Color : " + grid.gridColors[i, j] + " / Position in Matrix = " + grid.gridPositions[i, j]);
+                Debug.Log("Position " + r + " " + c + " = " + "Color : " + grid.gridColors[r, c] + " / Position in Matrix = " + grid.gridPositions[r, c]);
             }
         }
     }
@@ -146,11 +148,11 @@ public class GridController : MonoBehaviour
 
     private void DrawGrid()
     {
-        for (int i = 0; i < 9; i++)
+        for (int r = 0; r < 9; r++)
         {
-            for (int j = 0; j < 9; j++)
+            for (int c = 0; c < 9; c++)
             {
-                blocks.Add(gridView.DrawGrid(grid.gridColors[i, j], grid.gridPositions[i, j], "Block: ", i, j));
+                blocks.Add(gridView.DrawGrid(grid.gridColors[r, c], grid.gridPositions[r, c], "Block: ", r, c));
             }
         }
     }
@@ -177,14 +179,14 @@ public class GridController : MonoBehaviour
 
         for (int w = 0; w < swap.Length; w++)
         {
-            for (int i = 0; i < grid.height; i++)
+            for (int r = 0; r < grid.rows; r++)
             {
-                for (int j = 0; j < grid.width; j++)
+                for (int c = 0; c < grid.columns; c++)
                 {
-                    if(swap[w] == grid.gridPositions[i,j])
+                    if(swap[w] == grid.gridPositions[r,c])
                     {
-                        tiles[w].x = i;
-                        tiles[w].y = j;
+                        tiles[w].y = r;
+                        tiles[w].x = c;
                     }
                 }
             }
@@ -193,10 +195,10 @@ public class GridController : MonoBehaviour
         if (CheckSwap())
         {
             
-            auxColor = grid.gridColors[(int)tiles[0].x, (int)tiles[0].y];
+            auxColor = grid.gridColors[(int)tiles[0].y, (int)tiles[0].x];
 
-            grid.gridColors[(int)tiles[0].x, (int)tiles[0].y] = grid.gridColors[(int)tiles[1].x, (int)tiles[1].y];
-            grid.gridColors[(int)tiles[1].x, (int)tiles[1].y] = auxColor;
+            grid.gridColors[(int)tiles[0].y, (int)tiles[0].x] = grid.gridColors[(int)tiles[1].y, (int)tiles[1].x];
+            grid.gridColors[(int)tiles[1].y, (int)tiles[1].x] = auxColor;
 
             for (int i = 0; i < swap.Length; i++)
             {
@@ -205,7 +207,7 @@ public class GridController : MonoBehaviour
                     auxPos = new Vector2(blocks[j].transform.position.x, blocks[j].transform.position.y);
                     if (swap[i] == auxPos)
                     {
-                        gridView.ChangeColor(blocks[j], grid.gridColors[(int)tiles[i].x, (int)tiles[i].y]);
+                        gridView.ChangeColor(blocks[j], grid.gridColors[(int)tiles[i].y, (int)tiles[i].x]);
                     }
                 }
             }
@@ -214,69 +216,34 @@ public class GridController : MonoBehaviour
 
     private bool CheckSwap()
     {
-        /*Vector2[] pos = new Vector2[4];
-        pos[0] = grid.gridPositions[(int)tiles[0].x, (int)tiles[0].y - 1];
-        pos[1] = grid.gridPositions[(int)tiles[0].x, (int)tiles[0].y + 1];
-        pos[2] = grid.gridPositions[(int)tiles[0].x - 1, (int)tiles[0].y];
-        pos[3] = grid.gridPositions[(int)tiles[0].x + 1, (int)tiles[0].y];*/
 
-
-        /*if(tiles[1].x != 0)
+        if(tiles[0].y > 0)
         {
-            if (grid.gridPositions[(int)tiles[1].x, (int)tiles[1].y] == pos[0])
+            if (grid.gridPositions[(int)tiles[1].y, (int)tiles[1].x] == grid.gridPositions[(int)tiles[0].y - 1, (int)tiles[0].x])
             {
                 return true;
             }
         }
 
-        if(tiles[1].x != 0)
+        if (tiles[0].x > 0)
         {
-            if (grid.gridPositions[(int)tiles[1].x, (int)tiles[1].y] == pos[0])
-            {
-                return true;
-            }
-        }*/
-
-
-        /*for (int i = 0; i < pos.Length; i++)
-        {
-            if(pos[i].x != 0 && pos[i].x != )
-            {
-
-            }
-            if (grid.gridPositions[(int)tiles[1].x, (int)tiles[1].y] == pos[i])
-            {
-                return true;
-            }
-        }*/
-
-        if((int)tiles[0].y != 0)
-        {
-            if (grid.gridPositions[(int)tiles[1].x, (int)tiles[1].y] == grid.gridPositions[(int)tiles[0].x, (int)tiles[0].y - 1])
+            if (grid.gridPositions[(int)tiles[1].y, (int)tiles[1].x] == grid.gridPositions[(int)tiles[0].y, (int)tiles[0].x - 1])
             {
                 return true;
             }
         }
 
-        if ((int)tiles[0].y != 16)
+        if(tiles[0].y < rows - 1)
         {
-            if (grid.gridPositions[(int)tiles[1].x, (int)tiles[1].y] == grid.gridPositions[(int)tiles[0].x, (int)tiles[0].y + 1])
+            if (grid.gridPositions[(int)tiles[1].y, (int)tiles[1].x] == grid.gridPositions[(int)tiles[0].y + 1, (int)tiles[0].x])
             {
                 return true;
             }
         }
 
-        if ((int)tiles[0].x != 0)
+        if (tiles[0].x < rows - 1)
         {
-            if (grid.gridPositions[(int)tiles[1].x, (int)tiles[1].y] == grid.gridPositions[(int)tiles[0].x - 1, (int)tiles[0].y])
-            {
-                return true;
-            }
-        }
-
-        if ((int)tiles[0].x != 16)
-        {
-            if (grid.gridPositions[(int)tiles[1].x, (int)tiles[1].y] == grid.gridPositions[(int)tiles[0].x + 1, (int)tiles[0].y])
+            if (grid.gridPositions[(int)tiles[1].y, (int)tiles[1].x] == grid.gridPositions[(int)tiles[0].y, (int)tiles[0].x + 1])
             {
                 return true;
             }
