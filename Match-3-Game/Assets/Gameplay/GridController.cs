@@ -48,7 +48,7 @@ public class GridController : MonoBehaviour
             for (int c = 0; c < grid.columns; c++)
             {
                 grid.gridColors[r, c] = RandomColor();
-                grid.gridPositions[r, c] = new Vector2(increasedPosition * c, increasedPosition * r * -1);
+                grid.gridPositions[r, c] = new Vector2(increasedPosition * c , increasedPosition * r * -1);
             }
         }
 
@@ -176,9 +176,6 @@ public class GridController : MonoBehaviour
 
     private void SwapTile()
     {
-        Vector2 auxPos;
-        GridModel.Colors auxColor;
-
         for (int w = 0; w < swap.Length; w++)
         {
             for (int r = 0; r < grid.rows; r++)
@@ -194,43 +191,31 @@ public class GridController : MonoBehaviour
             }
         }
 
-        for (int i = 0; i < 2; i++)
+        if(CheckSwap())
         {
-            Debug.Log("OLD Block " + tilesGridPosition[i].y + " - " + tilesGridPosition[i].x + " / Color : " + grid.gridColors[(int)tilesGridPosition[i].y, (int)tilesGridPosition[i].x]);
+            Vector3 auxTilePosition = tilesToSwap[0].transform.position;
+            tilesToSwap[0].transform.position = tilesToSwap[1].transform.position;
+            tilesToSwap[1].transform.position = auxTilePosition;
         }
-
-        Vector3 auxTilePosition = tilesToSwap[0].transform.position;
-        tilesToSwap[0].transform.position = tilesToSwap[1].transform.position;
-        tilesToSwap[1].transform.position = auxTilePosition;
-
-        /*GridModel.Colors[] auxTileColor = new GridModel.Colors[2];
-
-        auxTileColor[0] = grid.gridColors[(int)tilesGridPosition[1].y, (int)tilesGridPosition[1].x];
-        auxTileColor[1] = grid.gridColors[(int)tilesGridPosition[0].y, (int)tilesGridPosition[0].x];
-
-        grid.gridColors[(int)tilesGridPosition[0].y, (int)tilesGridPosition[0].x] = auxTileColor[0];
-        grid.gridColors[(int)tilesGridPosition[1].y, (int)tilesGridPosition[1].x] = auxTileColor[1];*/
 
         for (int i = 0; i < 2; i++)
         {
             Debug.Log("NEW Block " + tilesGridPosition[i].y + " - " + tilesGridPosition[i].x + " / Color : " + grid.gridColors[(int)tilesGridPosition[i].y, (int)tilesGridPosition[i].x]);
         }
-
-        
-        //tilesToSwap[0].transform.position;
-
-        /*if (CheckSwap())
-        {
-            
-        }*/
     }
 
     private bool CheckSwap()
     {
+        Debug.Log("0: - Column " + tilesGridPosition[0].x + " / - Row: " + tilesGridPosition[0].y);
+        Debug.Log("1: - Column " + tilesGridPosition[1].x + " / - Row: " + tilesGridPosition[1].y);
 
-        if(tilesGridPosition[0].y > 0)
+        Debug.Log(tilesGridPosition[0]);
+        Debug.Log(tilesGridPosition[1]);
+
+        if (tilesGridPosition[0].y > 0)
         {
-            if (grid.gridPositions[(int)tilesGridPosition[1].y, (int)tilesGridPosition[1].x] == grid.gridPositions[(int)tilesGridPosition[0].y - 1, (int)tilesGridPosition[0].x])
+            
+            if (tilesGridPosition[1] == new Vector2(tilesGridPosition[0].x, tilesGridPosition[0].y - 1))
             {
                 return true;
             }
@@ -238,7 +223,8 @@ public class GridController : MonoBehaviour
 
         if (tilesGridPosition[0].x > 0)
         {
-            if (grid.gridPositions[(int)tilesGridPosition[1].y, (int)tilesGridPosition[1].x] == grid.gridPositions[(int)tilesGridPosition[0].y, (int)tilesGridPosition[0].x - 1])
+
+            if (tilesGridPosition[1] == new Vector2(tilesGridPosition[0].x - 1, tilesGridPosition[0].y ))
             {
                 return true;
             }
@@ -246,7 +232,7 @@ public class GridController : MonoBehaviour
 
         if(tilesGridPosition[0].y < rows - 1)
         {
-            if (grid.gridPositions[(int)tilesGridPosition[1].y, (int)tilesGridPosition[1].x] == grid.gridPositions[(int)tilesGridPosition[0].y + 1, (int)tilesGridPosition[0].x])
+            if (tilesGridPosition[1] == new Vector2(tilesGridPosition[0].x, tilesGridPosition[0].y + 1))
             {
                 return true;
             }
@@ -254,7 +240,7 @@ public class GridController : MonoBehaviour
 
         if (tilesGridPosition[0].x < columns - 1)
         {
-            if (grid.gridPositions[(int)tilesGridPosition[1].y, (int)tilesGridPosition[1].x] == grid.gridPositions[(int)tilesGridPosition[0].y, (int)tilesGridPosition[0].x + 1])
+            if (tilesGridPosition[1] == new Vector2(tilesGridPosition[0].x + 1, tilesGridPosition[0].y))
             {
                 return true;
             }
@@ -272,6 +258,8 @@ public class GridController : MonoBehaviour
             SwapTile();
             tilesToSwap[0] = null;
             tilesToSwap[1] = null;
+            tilesGridPosition[0] = Vector2.zero;
+            tilesGridPosition[1] = Vector2.zero;
         }
         else
         {
