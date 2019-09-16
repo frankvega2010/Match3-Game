@@ -277,7 +277,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 519420028}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 9, y: 7, z: -20}
+  m_LocalPosition: {x: 8, y: -8, z: -20}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -391,7 +391,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1133261208}
   - component: {fileID: 1133261207}
-  - component: {fileID: 1133261209}
   - component: {fileID: 1133261210}
   m_Layer: 0
   m_Name: Block
@@ -463,19 +462,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1133261209
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1133261206}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3643bd067ecc35540b3b913fe2dbdf2e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  controller: {fileID: 1873383700}
 --- !u!61 &1133261210
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -611,6 +597,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1edcaa4d5c8df0a40b4f7e660c0d1c06, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  controller: {fileID: 1873383700}
   template: {fileID: 1133261206}
   newParent: {fileID: 1118204869}
 --- !u!1 &1873383698
@@ -661,9 +648,12 @@ MonoBehaviour:
   swap:
   - {x: 0, y: 0}
   - {x: 0, y: 0}
-  tiles:
+  tilesGridPosition:
   - {x: 0, y: 0}
   - {x: 0, y: 0}
   blocks: []
   gridView: {fileID: 1435347859}
-  swapTiles: 
+  swapTiles: 0000
+  tilesToSwap:
+  - {fileID: 0}
+  - {fileID: 0}

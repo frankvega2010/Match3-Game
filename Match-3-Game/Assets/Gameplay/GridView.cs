@@ -5,19 +5,32 @@ using UnityEngine.UI;
 
 public class GridView : MonoBehaviour
 {
+    public GridController controller;
     public GameObject template;
     public Transform newParent;
-   /* // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    /* // Start is called before the first frame update
+     void Start()
+     {
+
+     }
+
+     */
+
 
     // Update is called once per frame
     void Update()
     {
-        
-    }*/
+        if(Input.GetMouseButtonDown(0))
+        {
+            RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector3.zero);
+
+            if (hit)
+            {
+                Debug.Log(hit.transform.gameObject.name);
+                controller.CheckBlockClicked(hit.transform.gameObject);
+            }
+        }
+    }
 
     public GameObject DrawGrid(GridModel.Colors tileColor,Vector2 tilePosition, string newName, int i, int j)
     {
@@ -69,4 +82,6 @@ public class GridView : MonoBehaviour
                 break;
         }
     }
+
+    
 }

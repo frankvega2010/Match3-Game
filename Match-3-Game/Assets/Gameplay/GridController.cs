@@ -7,13 +7,15 @@ public class GridController : MonoBehaviour
     public int rows;
     public int columns;
     public Vector2[] swap;
-    public Vector2[] tiles = new Vector2[2];
+    public Vector2[] tilesGridPosition = new Vector2[2];
     public List<GameObject> blocks;
     public GridView gridView;
     private GridModel grid;
+    public GameObject[,] gridTiles = new GameObject[9,9];
     public bool[] swapTiles;
+    public GameObject[] tilesToSwap;
+    
 
-    //
     // Start is called before the first frame update
     void Start()
     {
@@ -41,12 +43,12 @@ public class GridController : MonoBehaviour
         grid.gridColors = new GridModel.Colors[grid.rows, grid.columns];
         grid.gridPositions = new Vector2[grid.rows, grid.columns];
 
-        for (int i = 0; i < grid.rows; i++)
+        for (int r = 0; r < grid.rows; r++)
         {
-            for (int j = 0; j < grid.columns; j++)
+            for (int c = 0; c < grid.columns; c++)
             {
-                grid.gridColors[i, j] = RandomColor();
-                grid.gridPositions[i, j] = new Vector2(increasedPosition * j, increasedPosition * i);
+                grid.gridColors[r, c] = RandomColor();
+                grid.gridPositions[r, c] = new Vector2(increasedPosition * c, increasedPosition * r * -1);
             }
         }
 
@@ -152,7 +154,7 @@ public class GridController : MonoBehaviour
         {
             for (int c = 0; c < 9; c++)
             {
-                blocks.Add(gridView.DrawGrid(grid.gridColors[r, c], grid.gridPositions[r, c], "Block: ", r, c));
+                gridTiles[r, c] = gridView.DrawGrid(grid.gridColors[r, c], grid.gridPositions[r, c], "Block: ", r, c);
             }
         }
     }
@@ -183,72 +185,97 @@ public class GridController : MonoBehaviour
             {
                 for (int c = 0; c < grid.columns; c++)
                 {
-                    if(swap[w] == grid.gridPositions[r,c])
+                    if(tilesToSwap[w].transform.position == gridTiles[r,c].transform.position)
                     {
-                        tiles[w].y = r;
-                        tiles[w].x = c;
+                        tilesGridPosition[w].y = r;
+                        tilesGridPosition[w].x = c;
                     }
                 }
             }
         }
 
-        if (CheckSwap())
+        for (int i = 0; i < 2; i++)
+        {
+            Debug.Log("OLD Block " + tilesGridPosition[i].y + " - " + tilesGridPosition[i].x + " / Color : " + grid.gridColors[(int)tilesGridPosition[i].y, (int)tilesGridPosition[i].x]);
+        }
+
+        Vector3 auxTilePosition = tilesToSwap[0].transform.position;
+        tilesToSwap[0].transform.position = tilesToSwap[1].transform.position;
+        tilesToSwap[1].transform.position = auxTilePosition;
+
+        /*GridModel.Colors[] auxTileColor = new GridModel.Colors[2];
+
+        auxTileColor[0] = grid.gridColors[(int)tilesGridPosition[1].y, (int)tilesGridPosition[1].x];
+        auxTileColor[1] = grid.gridColors[(int)tilesGridPosition[0].y, (int)tilesGridPosition[0].x];
+
+        grid.gridColors[(int)tilesGridPosition[0].y, (int)tilesGridPosition[0].x] = auxTileColor[0];
+        grid.gridColors[(int)tilesGridPosition[1].y, (int)tilesGridPosition[1].x] = auxTileColor[1];*/
+
+        for (int i = 0; i < 2; i++)
+        {
+            Debug.Log("NEW Block " + tilesGridPosition[i].y + " - " + tilesGridPosition[i].x + " / Color : " + grid.gridColors[(int)tilesGridPosition[i].y, (int)tilesGridPosition[i].x]);
+        }
+
+        
+        //tilesToSwap[0].transform.position;
+
+        /*if (CheckSwap())
         {
             
-            auxColor = grid.gridColors[(int)tiles[0].y, (int)tiles[0].x];
-
-            grid.gridColors[(int)tiles[0].y, (int)tiles[0].x] = grid.gridColors[(int)tiles[1].y, (int)tiles[1].x];
-            grid.gridColors[(int)tiles[1].y, (int)tiles[1].x] = auxColor;
-
-            for (int i = 0; i < swap.Length; i++)
-            {
-                for (int j = 0; j < blocks.Count; j++)
-                {
-                    auxPos = new Vector2(blocks[j].transform.position.x, blocks[j].transform.position.y);
-                    if (swap[i] == auxPos)
-                    {
-                        gridView.ChangeColor(blocks[j], grid.gridColors[(int)tiles[i].y, (int)tiles[i].x]);
-                    }
-                }
-            }
-        }
+        }*/
     }
 
     private bool CheckSwap()
     {
 
-        if(tiles[0].y > 0)
+        if(tilesGridPosition[0].y > 0)
         {
-            if (grid.gridPositions[(int)tiles[1].y, (int)tiles[1].x] == grid.gridPositions[(int)tiles[0].y - 1, (int)tiles[0].x])
+            if (grid.gridPositions[(int)tilesGridPosition[1].y, (int)tilesGridPosition[1].x] == grid.gridPositions[(int)tilesGridPosition[0].y - 1, (int)tilesGridPosition[0].x])
             {
                 return true;
             }
         }
 
-        if (tiles[0].x > 0)
+        if (tilesGridPosition[0].x > 0)
         {
-            if (grid.gridPositions[(int)tiles[1].y, (int)tiles[1].x] == grid.gridPositions[(int)tiles[0].y, (int)tiles[0].x - 1])
+            if (grid.gridPositions[(int)tilesGridPosition[1].y, (int)tilesGridPosition[1].x] == grid.gridPositions[(int)tilesGridPosition[0].y, (int)tilesGridPosition[0].x - 1])
             {
                 return true;
             }
         }
 
-        if(tiles[0].y < rows - 1)
+        if(tilesGridPosition[0].y < rows - 1)
         {
-            if (grid.gridPositions[(int)tiles[1].y, (int)tiles[1].x] == grid.gridPositions[(int)tiles[0].y + 1, (int)tiles[0].x])
+            if (grid.gridPositions[(int)tilesGridPosition[1].y, (int)tilesGridPosition[1].x] == grid.gridPositions[(int)tilesGridPosition[0].y + 1, (int)tilesGridPosition[0].x])
             {
                 return true;
             }
         }
 
-        if (tiles[0].x < rows - 1)
+        if (tilesGridPosition[0].x < columns - 1)
         {
-            if (grid.gridPositions[(int)tiles[1].y, (int)tiles[1].x] == grid.gridPositions[(int)tiles[0].y, (int)tiles[0].x + 1])
+            if (grid.gridPositions[(int)tilesGridPosition[1].y, (int)tilesGridPosition[1].x] == grid.gridPositions[(int)tilesGridPosition[0].y, (int)tilesGridPosition[0].x + 1])
             {
                 return true;
             }
         }
 
         return false;
+    }
+
+
+    public void CheckBlockClicked(GameObject block)
+    {
+        if (tilesToSwap[0])
+        {
+            tilesToSwap[1] = block;
+            SwapTile();
+            tilesToSwap[0] = null;
+            tilesToSwap[1] = null;
+        }
+        else
+        {
+            tilesToSwap[0] = block;
+        }
     }
 }

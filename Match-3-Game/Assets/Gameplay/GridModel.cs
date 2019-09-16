@@ -17,25 +17,5 @@ public class GridModel
     public Vector2[,] gridPositions;
     public int cellPosition;
     public int columns;
-    public int rows;
-
-   /* public Vector2 GetPosition(int column, int row)
-    {
-        Vector2 position;
-
-        position = gridPositions[column, row];
-
-        return position;
-    }
-
-    public Colors GetColor(int column, int row)
-    {
-        Colors color;
-
-        color = gridColors[column, row];
-
-        return color;
-    }*/
-
-    
+    public int rows;   
 }
