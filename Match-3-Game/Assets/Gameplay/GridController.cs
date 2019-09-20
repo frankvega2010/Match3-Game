@@ -16,12 +16,15 @@ public class GridController : MonoBehaviour
 
     public int rows;
     public int columns;
+    public GameObject template;
+    public LayerMask masks;
     public Vector2[] tilesGridPosition = new Vector2[2];
     public GameObject[,] gridTiles = new GameObject[9, 9];
     public GameObject[] tilesToSwap;
     public List<GameObject> tilesToDelete;
     public List<GameObject> sameColorTilesFound;
 
+    private Vector2[] nullTiles;
     public GridView gridView;
     private GridModel grid;
     public float distance = 0;
@@ -43,7 +46,18 @@ public class GridController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        /*//Physics2D.Raycast()
+        RaycastHit2D hit = Physics2D.Raycast(template.transform.position, Vector3.up, 100, masks);
+        if (hit.collider != null)
+        {
+            Debug.DrawRay(template.transform.position, Vector3.up * hit.distance, Color.green);
+            Debug.Log("gg");
+            //hit.collider.gameObject.transform.position = newPosition;
+        }
+        else
+        {
+            Debug.DrawRay(template.transform.position, Vector3.up * 100, Color.red);
+        }*/
     }
 
     public void InitializeGrid(int newRows, int newColumns, int increasedPosition)
@@ -209,11 +223,24 @@ public class GridController : MonoBehaviour
                 foreach (GameObject block in tilesToDelete)
                 {
                     //block.GetComponent<SpriteRenderer>().color = Color.white;
-                    gridView.ChangeColor(block, GridModel.Colors.blank);
+                    //gridView.ChangeColor(block, GridModel.Colors.blank);
+
+                    for (int r = 0; r < grid.rows; r++)
+                    {
+                        for (int c = 0; c < grid.columns; c++)
+                        {
+                            if (block == gridTiles[r, c])
+                            {
+                                Destroy(gridTiles[r, c]);
+                                gridTiles[r, c] = null;
+                            }
+                        }
+                    }
                 }
             }
 
             tilesToDelete.Clear();
+            RefillGrid();
         }
 
         for (int i = 0; i < 2; i++)
@@ -339,7 +366,7 @@ public class GridController : MonoBehaviour
         }
     }
 
-    private void CheckDirection(ref RaycastHit2D hit,GameObject target, directions raycastDirection)
+    private void CheckDirection(ref RaycastHit2D hit, GameObject target, directions raycastDirection)
     {
         switch (raycastDirection)
         {
@@ -357,6 +384,82 @@ public class GridController : MonoBehaviour
                 break;
             default:
                 break;
+        }
+    }
+
+    private void RefillGrid()
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            int nullCount = 0;
+
+            Debug.Log("Searching for null tiles");
+
+            for (int r = 0; r < grid.rows; r++)
+            {
+                for (int c = 0; c < grid.columns; c++)
+                {
+                    if (gridTiles[r, c] == null)
+                    {
+                        nullCount++;
+                    }
+                }
+            }
+
+            Debug.Log("Null Tiles : " + nullCount);
+
+            nullCount += 5;
+            nullTiles = new Vector2[nullCount];
+
+            Debug.Log("Assigning the position of the null tiles");
+
+            int currentNull = 0;
+
+            for (int r = 0; r < grid.rows; r++)
+            {
+                for (int c = 0; c < grid.columns; c++)
+                {
+                    if (gridTiles[r, c] == null)
+                    {
+                        nullTiles[currentNull] = new Vector2(grid.gridPositions[r, c].x, grid.gridPositions[r, c].y);
+                        currentNull++;
+                    }
+                }
+            }
+
+            Debug.Log("Applying the correct position to the nearest tiles");
+
+
+            Invoke("ReplaceTiles", 0.1f);
+        }
+
+        
+
+    }
+
+    private void ReplaceTiles() //REPLACE RAYCAST WITH GRID TILE POSITION Y++
+    {
+        for (int n = 0; n < nullTiles.Length; n++)
+        {
+            Vector3 newPosition = new Vector3(nullTiles[n].x, nullTiles[n].y, 0);
+
+            Debug.Log("NULL POSITION ======  " + n + " : " + newPosition);
+
+            RaycastHit2D hit = Physics2D.Raycast(newPosition, Vector3.up, 100, masks);
+
+            Debug.Log("finding nearest tile");
+
+            for (int i = 0; i < 15; i++)
+            {
+                if (hit.collider != null)
+                {
+                    Debug.Log("gg");
+                    Vector2 auxPosition = new Vector2(hit.collider.gameObject.transform.position.x, hit.collider.gameObject.transform.position.y);
+                    hit.collider.gameObject.transform.position = newPosition;
+                    nullTiles[n] = auxPosition;
+                    i = 15;
+                }
+            }
         }
     }
 }
