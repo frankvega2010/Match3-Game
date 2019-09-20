@@ -196,6 +196,10 @@ public class GridController : MonoBehaviour
             Vector3 auxTilePosition = tilesToSwap[0].transform.position;
             tilesToSwap[0].transform.position = tilesToSwap[1].transform.position;
             tilesToSwap[1].transform.position = auxTilePosition;
+
+            GameObject auxGridTile = gridTiles[(int)tilesGridPosition[0].y, (int)tilesGridPosition[0].x];
+            gridTiles[(int)tilesGridPosition[0].y, (int)tilesGridPosition[0].x] = tilesToSwap[1];
+            gridTiles[(int)tilesGridPosition[1].y, (int)tilesGridPosition[1].x] = auxGridTile;
         }
 
         for (int i = 0; i < 2; i++)
