@@ -8,13 +8,7 @@ public class GridView : MonoBehaviour
     public GridController controller;
     public GameObject template;
     public Transform newParent;
-    /* // Start is called before the first frame update
-     void Start()
-     {
-
-     }
-
-     */
+    public Color replaceColor;
 
 
     // Update is called once per frame
@@ -35,16 +29,13 @@ public class GridView : MonoBehaviour
     public GameObject DrawGrid(GridModel.Colors tileColor,Vector2 tilePosition, string newName, int i, int j)
     {
         GameObject newTile = Instantiate(template, new Vector3(tilePosition.x,tilePosition.y),Quaternion.identity);
-        //newTile.transform.position = new Vector3(tilePosition.x, tilePosition.y, 0);
         newTile.SetActive(true);
         newTile.name = newName + i + " - " + j;
-
-        //newTile.GetComponent<SpriteRenderer>().color = Color.red;
 
         switch (tileColor)
         {
             case GridModel.Colors.blank:
-                newTile.GetComponent<SpriteRenderer>().color = Color.white;
+                newTile.GetComponent<SpriteRenderer>().color += replaceColor;
                 break;
             case GridModel.Colors.red:
                 newTile.GetComponent<SpriteRenderer>().color = Color.red;
@@ -67,7 +58,7 @@ public class GridView : MonoBehaviour
         switch (color)
         {
             case GridModel.Colors.blank:
-                block.GetComponent<SpriteRenderer>().color = Color.white;
+                block.GetComponent<SpriteRenderer>().color += replaceColor;
                 break;
             case GridModel.Colors.red:
                 block.GetComponent<SpriteRenderer>().color = Color.red;

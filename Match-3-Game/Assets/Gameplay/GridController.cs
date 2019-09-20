@@ -1,38 +1,50 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class GridController : MonoBehaviour
 {
+    enum directions
+    {
+        up,
+        down,
+        left,
+        right,
+        allDirs
+    }
+
     public int rows;
     public int columns;
-    public Vector2[] swap;
     public Vector2[] tilesGridPosition = new Vector2[2];
-    public List<GameObject> blocks;
+    public GameObject[,] gridTiles = new GameObject[9, 9];
+    public GameObject[] tilesToSwap;
+    public List<GameObject> tilesToDelete;
+    public List<GameObject> sameColorTilesFound;
+
     public GridView gridView;
     private GridModel grid;
-    public GameObject[,] gridTiles = new GameObject[9,9];
-    public bool[] swapTiles;
-    public GameObject[] tilesToSwap;
-    
+    public float distance = 0;
+    private directions[] rayDirections = new directions[4];
 
     // Start is called before the first frame update
     void Start()
     {
+        rayDirections[0] = directions.up;
+        rayDirections[1] = directions.down;
+        rayDirections[2] = directions.left;
+        rayDirections[3] = directions.right;
         grid = new GridModel();
         InitializeGrid(rows, columns, 2);
         ShowGridData();
         DrawGrid();
     }
 
-    /*// Update is called once per frame
+    // Update is called once per frame
     void Update()
     {
-        //CheckRepeatedColorsVertical();
-        //CheckRepeatedColorsHorizontal();
-        //Debug.Log("asd");
-        //DrawGrid();
-    }*/
+
+    }
 
     public void InitializeGrid(int newRows, int newColumns, int increasedPosition)
     {
@@ -48,7 +60,7 @@ public class GridController : MonoBehaviour
             for (int c = 0; c < grid.columns; c++)
             {
                 grid.gridColors[r, c] = RandomColor();
-                grid.gridPositions[r, c] = new Vector2(increasedPosition * c , increasedPosition * r * -1);
+                grid.gridPositions[r, c] = new Vector2(increasedPosition * c, increasedPosition * r * -1);
             }
         }
 
@@ -57,7 +69,7 @@ public class GridController : MonoBehaviour
             CheckRepeatedColorsVertical();
             CheckRepeatedColorsHorizontal();
         }
-        
+
     }
 
     public void CheckRepeatedColorsVertical()
@@ -84,7 +96,6 @@ public class GridController : MonoBehaviour
 
                     if (findSameColor >= 3)
                     {
-                        //grid.gridColors[i, j] = GridModel.Colors.blank;
                         grid.gridColors[r - 1, c] = RandomColor();
                         grid.gridColors[r, c] = RandomColor();
                         grid.gridColors[r + 1, c] = RandomColor();
@@ -120,7 +131,6 @@ public class GridController : MonoBehaviour
 
                     if (findSameColor >= 3)
                     {
-                        //grid.gridColors[i, j] = GridModel.Colors.blank;
                         grid.gridColors[r, c - 1] = RandomColor();
                         grid.gridColors[r, c] = RandomColor();
                         grid.gridColors[r, c + 1] = RandomColor();
@@ -159,30 +169,15 @@ public class GridController : MonoBehaviour
         }
     }
 
-    public void AddSwapTile(Vector2 newTile)
-    {
-        if (swapTiles[0])
-        {
-            swap[1] = newTile;
-            SwapTile();
-            swapTiles[0] = false;
-        }
-        else
-        {
-            swap[0] = newTile;
-            swapTiles[0] = true;
-        }
-    }
-
     private void SwapTile()
     {
-        for (int w = 0; w < swap.Length; w++)
+        for (int w = 0; w < tilesToSwap.Length; w++)
         {
             for (int r = 0; r < grid.rows; r++)
             {
                 for (int c = 0; c < grid.columns; c++)
                 {
-                    if(tilesToSwap[w].transform.position == gridTiles[r,c].transform.position)
+                    if (tilesToSwap[w].transform.position == gridTiles[r, c].transform.position)
                     {
                         tilesGridPosition[w].y = r;
                         tilesGridPosition[w].x = c;
@@ -191,7 +186,7 @@ public class GridController : MonoBehaviour
             }
         }
 
-        if(CheckSwap())
+        if (CheckSwap())
         {
             Vector3 auxTilePosition = tilesToSwap[0].transform.position;
             tilesToSwap[0].transform.position = tilesToSwap[1].transform.position;
@@ -200,6 +195,25 @@ public class GridController : MonoBehaviour
             GameObject auxGridTile = gridTiles[(int)tilesGridPosition[0].y, (int)tilesGridPosition[0].x];
             gridTiles[(int)tilesGridPosition[0].y, (int)tilesGridPosition[0].x] = tilesToSwap[1];
             gridTiles[(int)tilesGridPosition[1].y, (int)tilesGridPosition[1].x] = auxGridTile;
+
+            GridModel.Colors auxColorTile = grid.gridColors[(int)tilesGridPosition[0].y, (int)tilesGridPosition[0].x];
+            grid.gridColors[(int)tilesGridPosition[0].y, (int)tilesGridPosition[0].x] = grid.gridColors[(int)tilesGridPosition[1].y, (int)tilesGridPosition[1].x];
+            grid.gridColors[(int)tilesGridPosition[1].y, (int)tilesGridPosition[1].x] = auxColorTile;
+
+            CheckMatch3(0, rayDirections.Length - 2);
+            CheckMatch3(rayDirections.Length - 2, rayDirections.Length);
+
+            if (tilesToDelete.Count >= 3)
+            {
+                Debug.Log("Deleting blocks..");
+                foreach (GameObject block in tilesToDelete)
+                {
+                    //block.GetComponent<SpriteRenderer>().color = Color.white;
+                    gridView.ChangeColor(block, GridModel.Colors.blank);
+                }
+            }
+
+            tilesToDelete.Clear();
         }
 
         for (int i = 0; i < 2; i++)
@@ -218,7 +232,7 @@ public class GridController : MonoBehaviour
 
         if (tilesGridPosition[0].y > 0)
         {
-            
+
             if (tilesGridPosition[1] == new Vector2(tilesGridPosition[0].x, tilesGridPosition[0].y - 1))
             {
                 return true;
@@ -228,13 +242,13 @@ public class GridController : MonoBehaviour
         if (tilesGridPosition[0].x > 0)
         {
 
-            if (tilesGridPosition[1] == new Vector2(tilesGridPosition[0].x - 1, tilesGridPosition[0].y ))
+            if (tilesGridPosition[1] == new Vector2(tilesGridPosition[0].x - 1, tilesGridPosition[0].y))
             {
                 return true;
             }
         }
 
-        if(tilesGridPosition[0].y < rows - 1)
+        if (tilesGridPosition[0].y < rows - 1)
         {
             if (tilesGridPosition[1] == new Vector2(tilesGridPosition[0].x, tilesGridPosition[0].y + 1))
             {
@@ -268,6 +282,81 @@ public class GridController : MonoBehaviour
         else
         {
             tilesToSwap[0] = block;
+        }
+    }
+
+    private void CheckLine(GameObject block, directions raycastDirection)
+    {
+        SpriteRenderer blockSprite = block.GetComponent<SpriteRenderer>();
+        RaycastHit2D hit = Physics2D.Raycast(block.transform.position, Vector3.up, 0.2f);
+        CheckDirection(ref hit, block, raycastDirection);
+        Debug.Log("searching for hit");
+
+        for (int i = 0; i < 8; i++)
+        {
+            if (hit.collider != null && hit.collider.GetComponent<SpriteRenderer>().color == blockSprite.color)
+            {
+                Debug.Log("hit!");
+                sameColorTilesFound.Add(hit.collider.gameObject);
+                CheckDirection(ref hit, hit.collider.gameObject, raycastDirection);
+            }
+
+            sameColorTilesFound = sameColorTilesFound.Distinct().ToList();
+        }
+
+        sameColorTilesFound.Add(block);
+        sameColorTilesFound = sameColorTilesFound.Distinct().ToList();
+    }
+
+    private void CheckMatch3(int startIndex, int lastIndex)
+    {
+        for (int i = 0; i < tilesGridPosition.Length; i++)
+        {
+            Debug.Log("Checking Match3");
+
+            for (int c = startIndex; c < lastIndex; c++)
+            {
+                Debug.Log("Enter for loop");
+                CheckLine(gridTiles[(int)tilesGridPosition[i].y, (int)tilesGridPosition[i].x], rayDirections[c]);
+            }
+
+            sameColorTilesFound = sameColorTilesFound.Distinct().ToList();
+
+            foreach (GameObject item in sameColorTilesFound)
+            {
+                Debug.Log("Found: " + item.name);
+            }
+
+            if (sameColorTilesFound.Count >= 3)
+            {
+                foreach (GameObject tile in sameColorTilesFound)
+                {
+                    tilesToDelete.Add(tile);
+                }
+            }
+
+            sameColorTilesFound.Clear();
+        }
+    }
+
+    private void CheckDirection(ref RaycastHit2D hit,GameObject target, directions raycastDirection)
+    {
+        switch (raycastDirection)
+        {
+            case directions.up:
+                hit = Physics2D.Raycast(target.transform.position + Vector3.up * 1.2f, Vector3.up, 0.5f);
+                break;
+            case directions.down:
+                hit = Physics2D.Raycast(target.transform.position + Vector3.up * -1.2f, Vector3.up * -1, 0.5f);
+                break;
+            case directions.left:
+                hit = Physics2D.Raycast(target.transform.position + Vector3.right * -1.2f, Vector3.right * -1, 0.5f);
+                break;
+            case directions.right:
+                hit = Physics2D.Raycast(target.transform.position + Vector3.right * 1.2f, Vector3.right, 0.5f);
+                break;
+            default:
+                break;
         }
     }
 }
