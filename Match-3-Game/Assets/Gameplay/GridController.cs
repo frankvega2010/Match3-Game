@@ -221,12 +221,7 @@ public class GridController : MonoBehaviour
 
             tilesToDelete.Clear();
             RefillGrid();
-            /*for (int i = 0; i < 10; i++)
-            {
-                RefillTilesAfter();
-            }*/
-            
-            //Invoke("RefillTilesAfter", 0.2f);
+            //RefillTilesAfter(); VERY SLOW
         }
 
         for (int i = 0; i < 2; i++)
@@ -298,29 +293,6 @@ public class GridController : MonoBehaviour
         }
     }
 
-    /*private void CheckLine(GameObject block, directions raycastDirection)
-    {
-        SpriteRenderer blockSprite = block.GetComponent<SpriteRenderer>();
-        RaycastHit2D hit = Physics2D.Raycast(block.transform.position, Vector3.up, 0.2f);
-        CheckDirection(ref hit, block, raycastDirection);
-        Debug.Log("searching for hit");
-
-        for (int i = 0; i < 8; i++)
-        {
-            if (hit.collider != null && hit.collider.GetComponent<SpriteRenderer>().color == blockSprite.color)
-            {
-                Debug.Log("hit!");
-                sameColorTilesFound.Add(hit.collider.gameObject);
-                CheckDirection(ref hit, hit.collider.gameObject, raycastDirection);
-            }
-
-            sameColorTilesFound = sameColorTilesFound.Distinct().ToList();
-        }
-
-        sameColorTilesFound.Add(block);
-        sameColorTilesFound = sameColorTilesFound.Distinct().ToList();
-    }*/
-
     private void CheckLine(int positionY, int positionX , directions raycastDirection)
     {
         GameObject block = gridTiles[positionY, positionX];
@@ -341,8 +313,6 @@ public class GridController : MonoBehaviour
             {
                 i = 8;
             }
-
-            //sameColorTilesFound = sameColorTilesFound.Distinct().ToList();
         }
 
         sameColorTilesFound.Add(block);
@@ -382,19 +352,44 @@ public class GridController : MonoBehaviour
 
     private void CheckMatch3(int startIndex, int lastIndex, int rows, int columns)
     {
+        bool foundSameTile = false;
+
         for (int r = 0; r < rows; r++)
         {
             for (int c = 0; c < columns; c++)
             {
                 Debug.Log("Checking Match3");
 
-                for (int i = startIndex; i < lastIndex; i++)
+                foreach (GameObject tile in sameColorTilesFound)
                 {
-                    Debug.Log("Enter for loop");
-                    CheckLine(r, c, rayDirections[i]);
+                    if (tile == gridTiles[r, c])
+                    {
+                        foundSameTile = true;
+                    }
+
+                    foreach (GameObject deletedTile in tilesToDelete)
+                    {
+                        if (deletedTile == gridTiles[r, c])
+                        {
+                            foundSameTile = true;
+                        }
+                    }
                 }
 
-                //sameColorTilesFound = sameColorTilesFound.Distinct().ToList();
+                if (!foundSameTile)
+                {
+                    for (int i = startIndex; i < lastIndex; i++)
+                    {
+                        Debug.Log("Enter for loop");
+
+                        if (!foundSameTile)
+                        {
+                            CheckLine(r, c, rayDirections[i]);
+                        }
+                    }
+                }
+
+                foundSameTile = false;
 
                 foreach (GameObject item in sameColorTilesFound)
                 {
@@ -495,8 +490,6 @@ public class GridController : MonoBehaviour
 
             Debug.Log("Applying the correct position to the nearest tiles");
 
-
-            //Invoke("ReplaceTiles", 0.1f);
             ReplaceTiles();
         }
     }
@@ -525,10 +518,7 @@ public class GridController : MonoBehaviour
                         }
                     }
                 }
-            }
 
-            if (tilesToDelete.Count != 0)
-            {
                 RefillGrid();
             }
 
