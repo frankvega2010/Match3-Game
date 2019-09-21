@@ -499,9 +499,9 @@ GameObject:
   - component: {fileID: 1133261208}
   - component: {fileID: 1133261207}
   - component: {fileID: 1133261210}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Block
-  m_TagString: Untagged
+  m_TagString: block
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -753,6 +753,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rows: 9
   columns: 9
+  template: {fileID: 956156599}
+  masks:
+    serializedVersion: 2
+    m_Bits: 256
   tilesGridPosition:
   - {x: 0, y: 0}
   - {x: 0, y: 0}

@@ -24,7 +24,7 @@ public class GridController : MonoBehaviour
     public List<GameObject> tilesToDelete;
     public List<GameObject> sameColorTilesFound;
 
-    private Vector2[] nullTiles;
+    private Vector2[] nullTilesPosition;
     public GridView gridView;
     private GridModel grid;
     public float distance = 0;
@@ -41,23 +41,6 @@ public class GridController : MonoBehaviour
         InitializeGrid(rows, columns, 2);
         ShowGridData();
         DrawGrid();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        /*//Physics2D.Raycast()
-        RaycastHit2D hit = Physics2D.Raycast(template.transform.position, Vector3.up, 100, masks);
-        if (hit.collider != null)
-        {
-            Debug.DrawRay(template.transform.position, Vector3.up * hit.distance, Color.green);
-            Debug.Log("gg");
-            //hit.collider.gameObject.transform.position = newPosition;
-        }
-        else
-        {
-            Debug.DrawRay(template.transform.position, Vector3.up * 100, Color.red);
-        }*/
     }
 
     public void InitializeGrid(int newRows, int newColumns, int increasedPosition)
@@ -222,9 +205,6 @@ public class GridController : MonoBehaviour
                 Debug.Log("Deleting blocks..");
                 foreach (GameObject block in tilesToDelete)
                 {
-                    //block.GetComponent<SpriteRenderer>().color = Color.white;
-                    //gridView.ChangeColor(block, GridModel.Colors.blank);
-
                     for (int r = 0; r < grid.rows; r++)
                     {
                         for (int c = 0; c < grid.columns; c++)
@@ -408,8 +388,7 @@ public class GridController : MonoBehaviour
 
             Debug.Log("Null Tiles : " + nullCount);
 
-            nullCount += 5;
-            nullTiles = new Vector2[nullCount];
+            nullTilesPosition = new Vector2[nullCount];
 
             Debug.Log("Assigning the position of the null tiles");
 
@@ -421,7 +400,7 @@ public class GridController : MonoBehaviour
                 {
                     if (gridTiles[r, c] == null)
                     {
-                        nullTiles[currentNull] = new Vector2(grid.gridPositions[r, c].x, grid.gridPositions[r, c].y);
+                        nullTilesPosition[currentNull] = new Vector2(c, r);
                         currentNull++;
                     }
                 }
@@ -432,32 +411,53 @@ public class GridController : MonoBehaviour
 
             Invoke("ReplaceTiles", 0.1f);
         }
-
-        
-
     }
 
-    private void ReplaceTiles() //REPLACE RAYCAST WITH GRID TILE POSITION Y++
+    private void ReplaceTiles()
     {
-        for (int n = 0; n < nullTiles.Length; n++)
+        GameObject blockToBring;
+
+        for (int n = nullTilesPosition.Length-1; n >= 0; n--)
         {
-            Vector3 newPosition = new Vector3(nullTiles[n].x, nullTiles[n].y, 0);
-
-            Debug.Log("NULL POSITION ======  " + n + " : " + newPosition);
-
-            RaycastHit2D hit = Physics2D.Raycast(newPosition, Vector3.up, 100, masks);
-
-            Debug.Log("finding nearest tile");
-
-            for (int i = 0; i < 15; i++)
+            for (int yNull = 8; yNull >= 0; yNull--)
             {
-                if (hit.collider != null)
+                if(gridTiles[yNull, (int)nullTilesPosition[n].x] == null)
                 {
-                    Debug.Log("gg");
-                    Vector2 auxPosition = new Vector2(hit.collider.gameObject.transform.position.x, hit.collider.gameObject.transform.position.y);
-                    hit.collider.gameObject.transform.position = newPosition;
-                    nullTiles[n] = auxPosition;
-                    i = 15;
+                    for (int yFill = 0; yFill < 9; yFill++)
+                    {
+                        int newPositionX = (int)nullTilesPosition[n].x;
+                        int newPositionY = yNull - yFill;
+
+                        if (newPositionY >= 0 && newPositionY < rows)
+                        {
+                            Debug.Log("newPositionY : " + newPositionY);
+                            Debug.Log("newPositionX : " + newPositionX);
+
+                            if (gridTiles[newPositionY, newPositionX] != null)
+                            {
+                                blockToBring = gridTiles[newPositionY, newPositionX];
+                                gridTiles[newPositionY, newPositionX] = null;
+                                blockToBring.transform.position = grid.gridPositions[yNull, (int)nullTilesPosition[n].x];
+                                gridTiles[yNull, (int)nullTilesPosition[n].x] = blockToBring;
+                                yFill = 9;
+                            }
+                        }
+
+
+                    }
+                }
+                
+            }
+        }
+
+        for (int r = 0; r < 9; r++)
+        {
+            for (int c = 0; c < 9; c++)
+            {
+                if (gridTiles[r, c] == null)
+                {
+                    grid.gridColors[r, c] = RandomColor();
+                    gridTiles[r, c] = gridView.DrawGrid(grid.gridColors[r, c], grid.gridPositions[r, c], "Block: ", r, c);
                 }
             }
         }
