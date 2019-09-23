@@ -21,6 +21,9 @@ public class GridController : MonoBehaviour
     public Vector2[] tilesGridPosition = new Vector2[2];
     public GameObject[,] gridTiles = new GameObject[9, 9];
     public GameObject[] tilesToSwap;
+    public GameObject lastSameColor;
+    public int lastSameColorRow;
+    public int lastSameColorColumn;
     public List<GameObject> tilesToDelete;
     public List<GameObject> sameColorTilesFound;
 
@@ -221,7 +224,15 @@ public class GridController : MonoBehaviour
 
             tilesToDelete.Clear();
             RefillGrid();
-            //RefillTilesAfter(); VERY SLOW
+            /*for (int i = 0; i < 8; i++)
+            {
+                if(RefillTilesAfter())
+                {
+                    i = 8;
+                }
+                //RefillTilesAfter();
+            }*/
+            
         }
 
         for (int i = 0; i < 2; i++)
@@ -296,18 +307,24 @@ public class GridController : MonoBehaviour
     private void CheckLine(int positionY, int positionX , directions raycastDirection)
     {
         GameObject block = gridTiles[positionY, positionX];
+        GridModel.Colors blockColor = grid.gridColors[positionY, positionX];
         GameObject nextBlock = new GameObject();
-        SpriteRenderer blockSprite = block.GetComponent<SpriteRenderer>();
+        int newPositionX = 0;
+        int newPositionY = 0;
+        //SpriteRenderer blockSprite = block.GetComponent<SpriteRenderer>();
         Debug.Log("searching for hit");
 
         for (int i = 0; i < 8; i++)
         {
-            CheckDirection(ref nextBlock, raycastDirection, i, positionX, positionY);
+            CheckDirection(ref nextBlock, raycastDirection, i, positionX, positionY,ref newPositionX,ref newPositionY);
 
-            if (nextBlock.GetComponent<SpriteRenderer>().color == blockSprite.color)
+            if (grid.gridColors[newPositionY, newPositionX] == blockColor) // TERMINAR
             {
                 Debug.Log("hit!");
                 sameColorTilesFound.Add(nextBlock);
+                lastSameColor = nextBlock;
+                lastSameColorColumn = newPositionX;
+                lastSameColorRow = newPositionY;
             }
             else
             {
@@ -350,66 +367,179 @@ public class GridController : MonoBehaviour
         }
     }
 
-    private void CheckMatch3(int startIndex, int lastIndex, int rows, int columns)
+    private void ClearAllMatches()
+    {
+
+    }
+ 
+    private void CheckMatch3(int startIndex, int lastIndex, int rows, int columns,bool isVertical)
     {
         bool foundSameTile = false;
+       // GameObject lastSameColor = new GameObject();
 
-        for (int r = 0; r < rows; r++)
+        if (isVertical)
         {
             for (int c = 0; c < columns; c++)
             {
-                Debug.Log("Checking Match3");
-
-                foreach (GameObject tile in sameColorTilesFound)
+                for (int r = rows - 1; r >= 0; r--)
                 {
-                    if (tile == gridTiles[r, c])
+                    CheckLine(r, c, rayDirections[0]);
+
+                    if (sameColorTilesFound.Count >= 3)
                     {
-                        foundSameTile = true;
+                        foreach (GameObject tile in sameColorTilesFound)
+                        {
+                            tilesToDelete.Add(tile);
+                        }
                     }
 
-                    foreach (GameObject deletedTile in tilesToDelete)
+                    sameColorTilesFound.Clear();
+
+                    Debug.Log(gridTiles[lastSameColorRow, c].name);
+                    r = lastSameColorRow;
+                }
+            }
+        }
+        else
+        {
+            for (int r = rows - 1; r >= 0; r--)
+            {
+                for (int c = 0; c < columns; c++)
+                {
+                    CheckLine(r, c, rayDirections[3]);
+
+                    if (sameColorTilesFound.Count >= 3)
                     {
-                        if (deletedTile == gridTiles[r, c])
+                        foreach (GameObject tile in sameColorTilesFound)
+                        {
+                            tilesToDelete.Add(tile);
+                        }
+                    }
+
+                    sameColorTilesFound.Clear();
+
+                    Debug.Log(gridTiles[r, lastSameColorColumn].name);
+                    c = lastSameColorColumn;
+                }
+            }
+        }
+        /*if(isVertical)
+        {
+            for (int v = 0; v < columns; v++) // v = c
+            {
+                for (int t = 0; t < rows; t++) // t = r
+                {
+                    Debug.Log("Checking Match3");
+
+                    foreach (GameObject tile in sameColorTilesFound)
+                    {
+                        if (tile == gridTiles[t, v])
                         {
                             foundSameTile = true;
                         }
-                    }
-                }
 
-                if (!foundSameTile)
-                {
-                    for (int i = startIndex; i < lastIndex; i++)
-                    {
-                        Debug.Log("Enter for loop");
-
-                        if (!foundSameTile)
+                        foreach (GameObject deletedTile in tilesToDelete)
                         {
-                            CheckLine(r, c, rayDirections[i]);
+                            if (deletedTile == gridTiles[t, v])
+                            {
+                                foundSameTile = true;
+                            }
                         }
                     }
-                }
 
-                foundSameTile = false;
-
-                foreach (GameObject item in sameColorTilesFound)
-                {
-                    Debug.Log("Found: " + item.name);
-                }
-
-                if (sameColorTilesFound.Count >= 3)
-                {
-                    foreach (GameObject tile in sameColorTilesFound)
+                    if (!foundSameTile)
                     {
-                        tilesToDelete.Add(tile);
-                    }
-                }
+                        for (int i = startIndex; i < lastIndex; i++)
+                        {
+                            Debug.Log("Enter for loop");
 
-                sameColorTilesFound.Clear();
+                            if (!foundSameTile)
+                            {
+                                CheckLine(t, v, rayDirections[i]);
+                            }
+                        }
+                    }
+
+                    foundSameTile = false;
+
+                    foreach (GameObject item in sameColorTilesFound)
+                    {
+                        Debug.Log("Found: " + item.name);
+                    }
+
+                    if (sameColorTilesFound.Count >= 3)
+                    {
+                        foreach (GameObject tile in sameColorTilesFound)
+                        {
+                            tilesToDelete.Add(tile);
+                        }
+                    }
+
+                    sameColorTilesFound.Clear();
+                }
             }
         }
+        else
+        {
+            for (int r = 0; r < rows; r++)
+            {
+                for (int c = 0; c < columns; c++)
+                {
+                    Debug.Log("Checking Match3");
+
+                    foreach (GameObject tile in sameColorTilesFound)
+                    {
+                        if (tile == gridTiles[r, c])
+                        {
+                            foundSameTile = true;
+                        }
+
+                        foreach (GameObject deletedTile in tilesToDelete)
+                        {
+                            if (deletedTile == gridTiles[r, c])
+                            {
+                                foundSameTile = true;
+                            }
+                        }
+                    }
+
+                    if (!foundSameTile)
+                    {
+                        for (int i = startIndex; i < lastIndex; i++)
+                        {
+                            Debug.Log("Enter for loop");
+
+                            if (!foundSameTile)
+                            {
+                                CheckLine(r, c, rayDirections[i]);
+                            }
+                        }
+                    }
+
+                    foundSameTile = false;
+
+                    foreach (GameObject item in sameColorTilesFound)
+                    {
+                        Debug.Log("Found: " + item.name);
+                    }
+
+                    if (sameColorTilesFound.Count >= 3)
+                    {
+                        foreach (GameObject tile in sameColorTilesFound)
+                        {
+                            tilesToDelete.Add(tile);
+                        }
+                    }
+
+                    sameColorTilesFound.Clear();
+                }
+            }
+        }*/
+
+
     }
 
-    private void CheckDirection(ref GameObject target, directions raycastDirection, int amount, int X,int Y)
+    private void CheckDirection(ref GameObject target, directions raycastDirection, int amount, int X,int Y, ref int newPosX,ref int newPosY)
     {
         int newY = 0;
         int newX = 0;
@@ -421,6 +551,8 @@ public class GridController : MonoBehaviour
                 if (newY >= 0 && newY < rows)
                 {
                     target = gridTiles[newY, X];
+                    newPosX = X;
+                    newPosY = newY;
                 }
                 break;
             case directions.down:
@@ -428,6 +560,8 @@ public class GridController : MonoBehaviour
                 if (newY >= 0 && newY < rows)
                 {
                     target = gridTiles[newY, X];
+                    newPosX = X;
+                    newPosY = newY;
                 }
                 break;
             case directions.left:
@@ -435,6 +569,8 @@ public class GridController : MonoBehaviour
                 if (newX >= 0 && newX < columns)
                 {
                     target = gridTiles[Y , newX];
+                    newPosX = newX;
+                    newPosY = Y;
                 }
                 break;
             case directions.right:
@@ -442,6 +578,8 @@ public class GridController : MonoBehaviour
                 if (newX >= 0 && newX < columns)
                 {
                     target = gridTiles[Y, newX];
+                    newPosX = newX;
+                    newPosY = Y;
                 }
                 break;
             default:
@@ -494,36 +632,47 @@ public class GridController : MonoBehaviour
         }
     }
 
-    private void RefillTilesAfter()
+    private bool RefillTilesAfter()
     {
-        for (int i = 0; i < 1; i++)
-        {
-            CheckMatch3(0, rayDirections.Length - 2, rows, columns);
-            CheckMatch3(rayDirections.Length - 2, rayDirections.Length, rows, columns);
+        bool isAllCleared = false;
 
-            if (tilesToDelete.Count >= 3)
+        CheckMatch3(rayDirections.Length - 2, rayDirections.Length, rows, columns, false);
+        CheckMatch3(rayDirections.Length - 2, rayDirections.Length, rows, columns, true);
+
+        if (tilesToDelete.Count >= 3)
+        {
+            isAllCleared = false;
+            Debug.Log("Deleting blocks..");
+            foreach (GameObject block in tilesToDelete)
             {
-                Debug.Log("Deleting blocks..");
-                foreach (GameObject block in tilesToDelete)
+                for (int r = 0; r < grid.rows; r++)
                 {
-                    for (int r = 0; r < grid.rows; r++)
+                    for (int c = 0; c < grid.columns; c++)
                     {
-                        for (int c = 0; c < grid.columns; c++)
+                        if (block == gridTiles[r, c])
                         {
-                            if (block == gridTiles[r, c])
-                            {
-                                Destroy(gridTiles[r, c]);
-                                gridTiles[r, c] = null;
-                            }
+                            Destroy(gridTiles[r, c]);
+                            gridTiles[r, c] = null;
                         }
                     }
                 }
-
-                RefillGrid();
             }
 
-            tilesToDelete.Clear();
+            RefillGrid();
         }
+        else
+        {
+            isAllCleared = true;
+        }
+
+        tilesToDelete.Clear();
+
+        if(isAllCleared)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     private void ReplaceTiles()
