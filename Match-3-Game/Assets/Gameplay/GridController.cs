@@ -21,13 +21,14 @@ public class GridController : MonoBehaviour
     public Vector2[] tilesGridPosition = new Vector2[2];
     public GameObject[,] gridTiles = new GameObject[9, 9];
     public GameObject[] tilesToSwap;
-    //public GameObject lastSameColor;
     public int lastSameColorRow;
     public int lastSameColorColumn;
     public List<GameObject> tilesToDelete;
     public List<GameObject> sameColorTilesFound;
 
-    private Vector2[] nullTilesPosition;
+    public Vector2[] nullTilesPosition;
+    public Vector2[] nullTilesPos0;
+    private Vector2 nullVector2;
     public GridView gridView;
     private GridModel grid;
     public float distance = 0;
@@ -36,6 +37,20 @@ public class GridController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        nullTilesPosition = new Vector2[rows * columns];
+        nullTilesPos0 = new Vector2[(rows * columns) / 2];
+        nullVector2 = new Vector2(rows*2, columns * 2);
+
+        for (int i = 0; i < nullTilesPosition.Length; i++)
+        {
+            nullTilesPosition[i] = nullVector2;
+        }
+
+        for (int i = 0; i < nullTilesPos0.Length; i++)
+        {
+            nullTilesPos0[i] = nullVector2;
+        }
+        //nullTiles = new Vector2[rows,columns];
         rayDirections[0] = directions.up;
         rayDirections[1] = directions.down;
         rayDirections[2] = directions.left;
@@ -217,6 +232,15 @@ public class GridController : MonoBehaviour
                                 Destroy(gridTiles[r, c]);
                                 gridTiles[r, c] = null;
                                 grid.gridColors[r, c] = GridModel.Colors.blank;
+
+                                for (int i = 0; i < nullTilesPosition.Length; i++)
+                                {
+                                    if(nullTilesPosition[i] == nullVector2)
+                                    {
+                                        nullTilesPosition[i] = new Vector2(c, r);
+                                        i = nullTilesPosition.Length;
+                                    }
+                                }
                             }
                         }
                     }
@@ -225,16 +249,15 @@ public class GridController : MonoBehaviour
 
             tilesToDelete.Clear();
             RefillGrid();
-            RefillTilesAfter();
-            /*for (int i = 0; i < 7; i++)
+
+            for (int i = 0; i < 7; i++)
             {
                 if(RefillTilesAfter())
                 {
                     i = 7;
                 }
-                //RefillTilesAfter();
-            }*/
-            
+            }
+
         }
 
         for (int i = 0; i < 2; i++)
@@ -310,10 +333,8 @@ public class GridController : MonoBehaviour
     {
         GameObject block = gridTiles[positionY, positionX];
         GridModel.Colors blockColor = grid.gridColors[positionY, positionX];
-        //GameObject nextBlock = new GameObject();
         int newPositionX = 0;
         int newPositionY = 0;
-        //SpriteRenderer blockSprite = block.GetComponent<SpriteRenderer>();
         Debug.Log("searching for hit");
 
         for (int i = 0; i < 8; i++)
@@ -324,7 +345,6 @@ public class GridController : MonoBehaviour
             {
                 Debug.Log("hit!");
                 sameColorTilesFound.Add(gridTiles[newPositionY, newPositionX]); 
-                //lastSameColor = grid.gridColors[newPositionY, newPositionX];
                 lastSameColorColumn = newPositionX;
                 lastSameColorRow = newPositionY;
             }
@@ -363,10 +383,33 @@ public class GridController : MonoBehaviour
                         hasDeletedAnyBlocks = true;
                         for (int i = 0; i < streak; i++)
                         {
-                            //sameColorTilesFound.Add(gridTiles[r, startStreak + i]);
-                            Destroy(gridTiles[r, startStreak + i]);
-                            gridTiles[r, startStreak + i] = null;
-                            grid.gridColors[r, startStreak + i] = GridModel.Colors.blank;
+                            if (i != 1)
+                            {
+                                Destroy(gridTiles[r, startStreak + i]);
+                                gridTiles[r, startStreak + i] = null;
+                                grid.gridColors[r, startStreak + i] = GridModel.Colors.blank;
+
+                                for (int n = 0; n < nullTilesPosition.Length; n++)
+                                {
+                                    if (nullTilesPosition[n] == nullVector2)
+                                    {
+                                        nullTilesPosition[n] = new Vector2(startStreak + i, r);
+                                        n = nullTilesPosition.Length;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                for (int n = 0; n < nullTilesPos0.Length; n++)
+                                {
+                                    if (nullTilesPos0[n] == nullVector2)
+                                    {
+                                        nullTilesPos0[n] = new Vector2(startStreak + i, r);
+                                        n = nullTilesPos0.Length;
+                                    }
+                                }
+                            }
+                            
                         }
                     }
                     startStreak = c;
@@ -404,10 +447,18 @@ public class GridController : MonoBehaviour
                         hasDeletedAnyBlocks = true;
                         for (int i = 0; i < streak; i++)
                         {
-                            //sameColorTilesFound.Add(gridTiles[startStreak - i, c]);
-                            Destroy(gridTiles[startStreak - i, c]);
-                            gridTiles[startStreak - i, c] = null;
-                            grid.gridColors[startStreak - i, c] = GridModel.Colors.blank;
+                                Destroy(gridTiles[startStreak - i, c]);
+                                gridTiles[startStreak - i, c] = null;
+                                grid.gridColors[startStreak - i, c] = GridModel.Colors.blank;
+
+                                for (int n = 0; n < nullTilesPosition.Length; n++)
+                                {
+                                    if (nullTilesPosition[n] == nullVector2)
+                                    {
+                                        nullTilesPosition[n] = new Vector2(c, startStreak - i);
+                                        n = nullTilesPosition.Length;
+                                    }
+                                }
                         }
                     }
                     startStreak = r;
@@ -432,8 +483,6 @@ public class GridController : MonoBehaviour
                 CheckLine((int)tilesGridPosition[i].y, (int)tilesGridPosition[i].x, rayDirections[c]);
             }
 
-            //sameColorTilesFound = sameColorTilesFound.Distinct().ToList();
-
             foreach (GameObject item in sameColorTilesFound)
             {
                 Debug.Log("Found: " + item.name);
@@ -453,7 +502,6 @@ public class GridController : MonoBehaviour
  
     private bool ClearAllMatches(bool isVertical)
     {
-        //bool hasDeletedAnyBlocks = false;
 
         if (isVertical)
         {
@@ -484,7 +532,6 @@ public class GridController : MonoBehaviour
                 newY = Y - amount;
                 if (newY >= 0 && newY < rows)
                 {
-                    //target = gridTiles[newY, X];
                     newPosX = X;
                     newPosY = newY;
                 }
@@ -493,7 +540,6 @@ public class GridController : MonoBehaviour
                 newY = Y + amount;
                 if (newY >= 0 && newY < rows)
                 {
-                    //target = gridTiles[newY, X];
                     newPosX = X;
                     newPosY = newY;
                 }
@@ -502,7 +548,6 @@ public class GridController : MonoBehaviour
                 newX = X - amount;
                 if (newX >= 0 && newX < columns)
                 {
-                    //target = gridTiles[Y , newX];
                     newPosX = newX;
                     newPosY = Y;
                 }
@@ -511,7 +556,6 @@ public class GridController : MonoBehaviour
                 newX = X + amount;
                 if (newX >= 0 && newX < columns)
                 {
-                    //target = gridTiles[Y, newX];
                     newPosX = newX;
                     newPosY = Y;
                 }
@@ -521,86 +565,52 @@ public class GridController : MonoBehaviour
         }
     }
 
-    private void RefillGrid() // EVITAR BUSCAR DE NUEVO, LAS TILES QUE BORRE PASARLAS AL ARRAY/LISTA DE NULOS!!!
-    {
-        for (int i = 0; i < 3; i++)
-        {
-            int nullCount = 0;
-
-            Debug.Log("Searching for null tiles");
-
-            for (int r = 0; r < grid.rows; r++)
-            {
-                for (int c = 0; c < grid.columns; c++)
-                {
-                    if (gridTiles[r, c] == null)
-                    {
-                        nullCount++;
-                    }
-                }
-            }
-
-            Debug.Log("Null Tiles : " + nullCount);
-
-            nullTilesPosition = new Vector2[nullCount];
-
-            Debug.Log("Assigning the position of the null tiles");
-
-            int currentNull = 0;
-
-            for (int r = 0; r < grid.rows; r++)
-            {
-                for (int c = 0; c < grid.columns; c++)
-                {
-                    if (gridTiles[r, c] == null)
-                    {
-                        nullTilesPosition[currentNull] = new Vector2(c, r);
-                        currentNull++;
-                    }
-                }
-            }
-
-            Debug.Log("Applying the correct position to the nearest tiles");
-
-            ReplaceTiles();
-        }
-    }
-
-    private bool RefillTilesAfter()
-    {
-        bool isAllCleared = false;
-
-        Debug.Log("END OF SEARCHING FOR MATCHES");
-
-        if(ClearAllMatches(false) || ClearAllMatches(true))
-        {
-            isAllCleared = false;
-            RefillGrid();
-            //RefillTilesAfter();
-        }
-        else
-        {
-            isAllCleared = true;
-        }
-
-        if (isAllCleared)
-        {
-            return true;
-        }
-
-        return false;
-    }
-
-    private void ReplaceTiles()
+    private void RefillGrid()
     {
         GridModel.Colors colorToBring;
         GameObject blockToBring;
+        int startingPoint = 0;
 
-        for (int n = nullTilesPosition.Length-1; n >= 0; n--)
+        for (int n = 0; n < nullTilesPos0.Length; n++)
+        {
+            if (nullTilesPos0[n] == nullVector2)
+            {
+                n = nullTilesPos0.Length;
+            }
+            else
+            {
+                Destroy(gridTiles[(int)nullTilesPos0[n].y, (int)nullTilesPos0[n].x]);
+                gridTiles[(int)nullTilesPos0[n].y, (int)nullTilesPos0[n].x] = null;
+                grid.gridColors[(int)nullTilesPos0[n].y, (int)nullTilesPos0[n].x] = GridModel.Colors.blank;
+
+                for (int c = 0; c < nullTilesPosition.Length; c++)
+                {
+                    if (nullTilesPosition[c] == nullVector2)
+                    {
+                        nullTilesPosition[c] = new Vector2(nullTilesPos0[n].x, nullTilesPos0[n].y);
+                        c = nullTilesPosition.Length;
+                    }
+                }
+
+            }
+        }
+
+
+        for (int n = 0; n < nullTilesPosition.Length; n++)
+        {
+            if (nullTilesPosition[n] == nullVector2)
+            {
+                startingPoint = n - 1;
+                n = nullTilesPosition.Length;
+            }
+        }
+
+
+        for (int n = startingPoint; n >= 0; n--)
         {
             for (int yNull = 8; yNull >= 0; yNull--)
             {
-                if(gridTiles[yNull, (int)nullTilesPosition[n].x] == null)
+                if (gridTiles[yNull, (int)nullTilesPosition[n].x] == null)
                 {
                     for (int yFill = 0; yFill < 9; yFill++)
                     {
@@ -628,7 +638,7 @@ public class GridController : MonoBehaviour
 
                     }
                 }
-                
+
             }
         }
 
@@ -644,6 +654,32 @@ public class GridController : MonoBehaviour
             }
         }
 
-        
+        for (int i = 0; i < nullTilesPosition.Length; i++)
+        {
+            nullTilesPosition[i] = nullVector2;
+        }
+
+        for (int i = 0; i < nullTilesPos0.Length; i++)
+        {
+            nullTilesPos0[i] = nullVector2;
+        }
+    }
+
+    private bool RefillTilesAfter()
+    {
+
+        Debug.Log("END OF SEARCHING FOR MATCHES");
+
+        if(ClearAllMatches(false) || ClearAllMatches(true))
+        {
+            RefillGrid();
+            RefillTilesAfter();
+        }
+        else
+        {
+            return true;
+        }
+
+        return false;
     }
 }
