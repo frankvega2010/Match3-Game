@@ -24,6 +24,28 @@ public class GridView : MonoBehaviour
                 controller.CheckBlockClicked(hit.transform.gameObject);
             }
         }
+
+        if(Input.GetMouseButton(0))
+        {
+            RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector3.zero);
+
+            if (hit)
+            {
+                Debug.Log(hit.transform.gameObject.name);
+                controller.PreviewSwap(hit.transform.gameObject);
+            }
+        }
+
+        if(Input.GetMouseButtonUp(0))
+        {
+            RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector3.zero);
+
+            if (hit)
+            {
+                Debug.Log(hit.transform.gameObject.name);
+                controller.CheckMouseRelease(hit.transform.gameObject);
+            }
+        }
     }
 
     public GameObject DrawGrid(GridModel.Colors tileColor,Vector2 tilePosition, string newName, int i, int j)

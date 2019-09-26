@@ -26,6 +26,7 @@ public class GridController : MonoBehaviour
     public List<GameObject> tilesToDelete;
     public List<GameObject> sameColorTilesFound;
 
+    public bool doOnce;
     public Vector2[] nullTilesPosition;
     public Vector2[] nullTilesPos0;
     private Vector2 nullVector2;
@@ -314,9 +315,40 @@ public class GridController : MonoBehaviour
 
     public void CheckBlockClicked(GameObject block)
     {
+        if (!tilesToSwap[0])
+        {
+            tilesToSwap[0] = block;
+        }
+    }
+
+    public void PreviewSwap(GameObject block)
+    {
         if (tilesToSwap[0])
         {
-            tilesToSwap[1] = block;
+            if(block != tilesToSwap[0])
+            {
+                if (!doOnce)
+                {
+                    Debug.Log("I did this thing!");
+                    tilesToSwap[1] = block;
+                    Vector3 auxTile = tilesToSwap[0].transform.position;
+                    tilesToSwap[0].transform.position = tilesToSwap[1].transform.position;
+                    tilesToSwap[1].transform.position = auxTile;
+                    doOnce = true;
+                }
+            }
+        }
+    }
+
+    public void CheckMouseRelease(GameObject block)
+    {
+        doOnce = false;
+
+        if (tilesToSwap[0])
+        {
+            Vector3 auxTile = tilesToSwap[0].transform.position;
+            tilesToSwap[0].transform.position = tilesToSwap[1].transform.position;
+            tilesToSwap[1].transform.position = auxTile;
             SwapTile();
             tilesToSwap[0] = null;
             tilesToSwap[1] = null;
@@ -325,7 +357,10 @@ public class GridController : MonoBehaviour
         }
         else
         {
-            tilesToSwap[0] = block;
+            tilesToSwap[0] = null;
+            tilesToSwap[1] = null;
+            tilesGridPosition[0] = Vector2.zero;
+            tilesGridPosition[1] = Vector2.zero;
         }
     }
 
