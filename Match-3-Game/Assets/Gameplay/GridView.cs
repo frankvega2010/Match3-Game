@@ -14,7 +14,9 @@ public class GridView : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetMouseButtonDown(0))
+#if UNITY_EDITOR && !UNITY_ANDROID
+
+        if (Input.GetMouseButtonDown(0))
         {
             RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector3.zero);
 
@@ -25,7 +27,7 @@ public class GridView : MonoBehaviour
             }
         }
 
-        if(Input.GetMouseButton(0))
+        if (Input.GetMouseButton(0))
         {
             RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector3.zero);
 
@@ -36,7 +38,7 @@ public class GridView : MonoBehaviour
             }
         }
 
-        if(Input.GetMouseButtonUp(0))
+        if (Input.GetMouseButtonUp(0))
         {
             RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector3.zero);
 
@@ -46,6 +48,38 @@ public class GridView : MonoBehaviour
                 controller.CheckMouseRelease(hit.transform.gameObject);
             }
         }
+
+#endif
+
+        #if UNITY_ANDROID
+
+        if (Input.touchCount == 1)
+        {
+            Touch touch = Input.GetTouch(0);
+
+            RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(touch.position), Vector3.zero);
+
+            if (hit && touch.phase == TouchPhase.Began)
+            {
+                Debug.Log(hit.transform.gameObject.name);
+                controller.CheckBlockClicked(hit.transform.gameObject);
+            }
+
+            if (hit && touch.phase == TouchPhase.Moved)
+            {
+                Debug.Log(hit.transform.gameObject.name);
+                controller.PreviewSwap(hit.transform.gameObject);
+            }
+
+            if (hit && touch.phase == TouchPhase.Ended)
+            {
+                Debug.Log(hit.transform.gameObject.name);
+                controller.CheckMouseRelease(hit.transform.gameObject);
+            }
+        }
+
+        #endif
+
     }
 
     public GameObject DrawGrid(GridModel.Colors tileColor,Vector2 tilePosition, string newName, int i, int j)
