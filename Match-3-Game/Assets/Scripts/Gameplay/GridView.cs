@@ -52,7 +52,7 @@ public class GridView : MonoBehaviour
 
 #endif
 
-#if UNITY_ANDROID && !UNITY_EDITOR
+#if UNITY_ANDROID && !UNITY_EDITOR 
 
         if (Input.touchCount == 1)
         {
@@ -60,22 +60,25 @@ public class GridView : MonoBehaviour
 
             RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(touch.position), Vector3.zero);
 
-            if (hit && touch.phase == TouchPhase.Began)
+            if(hit)
             {
-                //Debug.Log(hit.transform.gameObject.name);
-                controller.CheckBlockClicked(hit.transform.gameObject);
-            }
-        //
-            if (hit && touch.phase == TouchPhase.Moved)
-            {
-                //Debug.Log(hit.transform.gameObject.name);
-                controller.PreviewSwap(hit.transform.gameObject);
-            }
-
-            if (hit && touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled)
-            {
-                //Debug.Log(hit.transform.gameObject.name);
-                controller.CheckMouseRelease(hit.transform.gameObject);
+                switch (touch.phase)
+                {
+                    case TouchPhase.Began:
+                        controller.CheckBlockClicked(hit.transform.gameObject);
+                        break;
+                    case TouchPhase.Moved:
+                        controller.PreviewSwap(hit.transform.gameObject);
+                        break;
+                    case TouchPhase.Ended:
+                        controller.CheckMouseRelease(hit.transform.gameObject);
+                        break;
+                    case TouchPhase.Canceled:
+                        controller.CheckMouseRelease(hit.transform.gameObject);
+                        break;
+                    default:
+                        break;
+                }
             }
         }
 

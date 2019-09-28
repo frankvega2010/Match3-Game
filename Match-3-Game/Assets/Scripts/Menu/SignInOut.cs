@@ -10,7 +10,11 @@ public class SignInOut : MonoBehaviour
     void Start()
     {
         googleplay = Setup.Get();
-        Setup.Get().UploadScore(GameManager.Get().score);
+
+        if(GameManager.Get().score != 0)
+        {
+            Setup.Get().UploadScore(GameManager.Get().score);
+        }
     }
 
     public void signIn()

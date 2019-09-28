@@ -1,24 +1,20 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using GooglePlayGames;
 using GooglePlayGames.BasicApi;
 using UnityEngine.SocialPlatforms;
 
 public class Setup : MonoBehaviourSingleton<Setup>
 {
-    //public Text title;
 
 
 #if UNITY_ANDROID
-    //
     // Start is called before the first frame update
     void Start()
     {
         InitializeGPS();
         SignIn();
-        UploadScore(GameManager.Get().score);
     }
 
     private void InitializeGPS()
@@ -69,17 +65,15 @@ public class Setup : MonoBehaviourSingleton<Setup>
 
     public void UploadScore(int score)
     {
-        Social.ReportScore(score, "CgkIhYDc8t4eEAIQAw", (bool success) =>
+        Social.ReportScore(score, "CgkIhYDc8t4eEAIQAQ", (bool success) =>
         {
             if (success)
             {
                 Debug.Log("log to leaderboard succeeded");
-                //title.text = "It actually worked!";
             }
             else
             {
                 Debug.Log("log to leaderboard failed");
-                //title.text = "it didnt worked :c!";
             }
 
             // handle success or failure
