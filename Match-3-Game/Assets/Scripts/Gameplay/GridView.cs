@@ -54,7 +54,7 @@ public class GridView : MonoBehaviour
 
 #if UNITY_ANDROID && !UNITY_EDITOR 
 
-        if (Input.touchCount == 1)
+        if (Input.touchCount > 0)
         {
             Touch touch = Input.GetTouch(0);
 
