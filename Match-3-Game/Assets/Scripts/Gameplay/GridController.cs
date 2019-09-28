@@ -717,8 +717,6 @@ public class GridController : MonoBehaviour
     private bool RefillTilesAfter()
     {
 
-        //Debug.Log("END OF SEARCHING FOR MATCHES");
-
         if (ClearAllMatches(false) || ClearAllMatches(true))
         {
             RefillGrid();
@@ -735,18 +733,14 @@ public class GridController : MonoBehaviour
     private void addScore(int amount)
     {
         score += amount;
+        GameManager.Get().score = score;
 
         if(score >= 100)
         {
-            Social.ReportProgress("CgkIhYDc8t4eEAIQAg", 100.0f, (bool success) => 
-            {
-                if(success)
-                {
-                    Debug.Log("gg!");
-                }
-                
-                // handle success or failure
-            });
+            //Setup.UnlockAchievementTest();
+            Setup.Get().UnlockAchievementTest();
+            //Test
+            Setup.Get().UploadScore(score);
         }
     }
 }

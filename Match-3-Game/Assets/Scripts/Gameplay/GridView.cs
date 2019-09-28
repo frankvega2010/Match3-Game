@@ -52,7 +52,7 @@ public class GridView : MonoBehaviour
 
 #endif
 
-        #if UNITY_ANDROID && !UNITY_EDITOR
+#if UNITY_ANDROID && !UNITY_EDITOR
 
         if (Input.touchCount == 1)
         {
@@ -65,21 +65,21 @@ public class GridView : MonoBehaviour
                 //Debug.Log(hit.transform.gameObject.name);
                 controller.CheckBlockClicked(hit.transform.gameObject);
             }
-
+        //
             if (hit && touch.phase == TouchPhase.Moved)
             {
                 //Debug.Log(hit.transform.gameObject.name);
                 controller.PreviewSwap(hit.transform.gameObject);
             }
 
-            if (hit && touch.phase == TouchPhase.Ended)
+            if (hit && touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled)
             {
                 //Debug.Log(hit.transform.gameObject.name);
                 controller.CheckMouseRelease(hit.transform.gameObject);
             }
         }
 
-        #endif
+#endif
 
     }
 
