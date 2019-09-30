@@ -10,6 +10,7 @@ public class GridModel
         red,
         blue,
         green,
+        cyan,
         allColors
     }
 

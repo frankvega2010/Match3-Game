@@ -10,6 +10,7 @@ public class GridView : MonoBehaviour
     public Transform newParent;
     public Color replaceColor;
     public Text scoreText;
+    public bool canSwipe;
 
 
     // Update is called once per frame
@@ -41,13 +42,7 @@ public class GridView : MonoBehaviour
 
         if (Input.GetMouseButtonUp(0))
         {
-            RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector3.zero);
-
-            if (hit)
-            {
-                //Debug.Log(hit.transform.gameObject.name);
-                controller.CheckMouseRelease(hit.transform.gameObject);
-            }
+            controller.CheckMouseRelease();
         }
 
 #endif
@@ -71,15 +66,20 @@ public class GridView : MonoBehaviour
                         controller.PreviewSwap(hit.transform.gameObject);
                         break;
                     case TouchPhase.Ended:
-                        controller.CheckMouseRelease(hit.transform.gameObject);
+                        controller.CheckMouseRelease();
                         break;
                     case TouchPhase.Canceled:
-                        controller.CheckMouseRelease(hit.transform.gameObject);
+                        controller.CheckMouseRelease();
                         break;
                     default:
                         break;
                 }
             }
+        }
+        else if(canSwipe)
+        {
+            controller.CheckMouseRelease();
+            canSwipe = false;
         }
 
 #endif
@@ -106,6 +106,9 @@ public class GridView : MonoBehaviour
             case GridModel.Colors.green:
                 newTile.GetComponent<SpriteRenderer>().color = Color.green;
                 break;
+            case GridModel.Colors.cyan:
+                newTile.GetComponent<SpriteRenderer>().color = Color.cyan;
+                break;
             default:
                 break;
         }
@@ -128,6 +131,9 @@ public class GridView : MonoBehaviour
                 break;
             case GridModel.Colors.green:
                 block.GetComponent<SpriteRenderer>().color = Color.green;
+                break;
+            case GridModel.Colors.cyan:
+                block.GetComponent<SpriteRenderer>().color = Color.cyan;
                 break;
             default:
                 break;

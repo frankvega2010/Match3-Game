@@ -31,6 +31,7 @@ public class GridController : MonoBehaviour
     public List<GameObject> sameColorTilesFound;
 
     public bool doOnce;
+    public bool finishRepeatedTiles;
     public Vector2[] nullTilesPosition;
     public Vector2[] nullTilesPos0;
     private Vector2 nullVector2;
@@ -87,16 +88,49 @@ public class GridController : MonoBehaviour
             }
         }
 
-        for (int i = 0; i < 5; i++)
+        int timesGO = 0;
+
+        while (!finishRepeatedTiles)
         {
-            CheckRepeatedColorsVertical();
-            CheckRepeatedColorsHorizontal();
+            int amountFinished = 0;
+
+            if (CheckRepeatedColorsHorizontal())
+            {
+                amountFinished++;
+            }
+
+            if (CheckRepeatedColorsVertical())
+            {
+                amountFinished++;
+            }
+
+            if (amountFinished >= 2)
+            {
+                finishRepeatedTiles = true;
+            }
+            else
+            {
+                finishRepeatedTiles = false;
+            }
+
+            Debug.Log("Amount FINISHED : " + amountFinished);
+            timesGO++;
         }
+
+        Debug.Log("Times WENT : " + timesGO);
+        /*
+        do
+        {
+            
+
+        } while (!finishRepeatedTiles);*/
+
 
     }
 
-    public void CheckRepeatedColorsVertical()
+    public bool CheckRepeatedColorsVertical()
     {
+        bool isDone = true;
         int findSameColor = 0;
 
         for (int r = 0; r < grid.rows; r++)
@@ -122,16 +156,20 @@ public class GridController : MonoBehaviour
                         grid.gridColors[r - 1, c] = RandomColor();
                         grid.gridColors[r, c] = RandomColor();
                         grid.gridColors[r + 1, c] = RandomColor();
+                        isDone = false;
                     }
 
                     findSameColor = 0;
                 }
             }
         }
+
+        return isDone;
     }
 
-    public void CheckRepeatedColorsHorizontal()
+    public bool CheckRepeatedColorsHorizontal()
     {
+        bool isDone = true;
         int findSameColor = 0;
 
         for (int r = 0; r < grid.rows; r++)
@@ -157,12 +195,15 @@ public class GridController : MonoBehaviour
                         grid.gridColors[r, c - 1] = RandomColor();
                         grid.gridColors[r, c] = RandomColor();
                         grid.gridColors[r, c + 1] = RandomColor();
+                        isDone = true;
                     }
 
                     findSameColor = 0;
                 }
             }
         }
+
+        return isDone;
     }
 
     public void ShowGridData()
@@ -178,7 +219,7 @@ public class GridController : MonoBehaviour
 
     private GridModel.Colors RandomColor()
     {
-        return (GridModel.Colors)Random.Range(1, 4);
+        return (GridModel.Colors)Random.Range(1, 5);
     }
 
     private void DrawGrid()
@@ -340,6 +381,7 @@ public class GridController : MonoBehaviour
                 if (!doOnce)
                 {
                     //Debug.Log("I did this thing!");
+                    gridView.canSwipe = true;
                     tilesToSwap[1] = block;
                     Vector3 auxTile = tilesToSwap[0].transform.position;
                     tilesToSwap[0].transform.position = tilesToSwap[1].transform.position;
@@ -350,7 +392,7 @@ public class GridController : MonoBehaviour
         }
     }
 
-    public void CheckMouseRelease(GameObject block)
+    public void CheckMouseRelease()
     {
         doOnce = false;
 
