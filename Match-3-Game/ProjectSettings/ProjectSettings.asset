@@ -705,10 +705,10 @@ PlayerSettings:
   facebookXfbml: 0
   facebookFrictionlessRequests: 1
   apiCompatibilityLevel: 6
-  cloudProjectId: 
+  cloudProjectId: ce6a855e-3460-4d2d-bc07-e986e1f5fbfe
   framebufferDepthMemorylessMode: 0
-  projectName: 
-  organizationId: 
+  projectName: Match3
+  organizationId: frankvegaargentina
   cloudEnabled: 0
   enableNativePlatformBackendsForNewInputSystem: 0
   disableOldInputManagerSupport: 0
